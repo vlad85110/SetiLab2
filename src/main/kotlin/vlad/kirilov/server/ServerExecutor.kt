@@ -24,6 +24,8 @@ class ServerExecutor(port: Int) {
                 string = scanner.nextLine()
             } while (string != "q")
 
+            println("exit")
+
             curThread.interrupt()
             socket.close()
         }
