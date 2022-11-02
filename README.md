@@ -10,6 +10,7 @@
 
 #Аргументы для запуска сервера
 ./gradlew run --args="server port"
+для завершения ввести q в консоль
 
 #Аргументы для запуска клиента
 ./gradlew run --args="client address port путь к файлу"
