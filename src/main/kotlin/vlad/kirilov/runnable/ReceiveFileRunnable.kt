@@ -13,7 +13,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class ReceiveFileRunnable(socket: Socket): FileRunnable(socket) {
-    override fun run() {
+    override fun start() {
         val delay: Long = 3
         val total = MutableLong(0)
         val speedCounterRunnable = SpeedCounterRunnable(delay, total, socket.remoteSocketAddress.toString())
@@ -24,18 +24,14 @@ class ReceiveFileRunnable(socket: Socket): FileRunnable(socket) {
         val file = File("uploads/${fileName}")
         val fileStream = DataOutputStream(FileOutputStream(file))
 
-        val startTime = System.currentTimeMillis()
-        speedCounter.scheduleAtFixedRate(speedCounterRunnable, delay, delay, TimeUnit.SECONDS)
-        receiveFile(input, fileStream, buffer, total)
-        val endTime = System.currentTimeMillis()
-        speedCounter.shutdown()
-        speedCounterRunnable.showTotal(endTime - startTime)
-
-        sendSuccessCallback(out, expectedSize == total.value)
-
-        socket.close()
-        input.close()
-        out.close()
-        fileStream.close()
+        fileStream.use {
+            val startTime = System.currentTimeMillis()
+            speedCounter.scheduleAtFixedRate(speedCounterRunnable, delay, delay, TimeUnit.SECONDS)
+            receiveFile(input, fileStream, buffer, total)
+            val endTime = System.currentTimeMillis()
+            speedCounter.shutdown()
+            speedCounterRunnable.showTotal(endTime - startTime)
+            sendSuccessCallback(out, expectedSize == total.value)
+        }
     }
 }

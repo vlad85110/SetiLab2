@@ -10,23 +10,19 @@ import java.io.FileInputStream
 import java.net.Socket
 
 class SendFileRunnable(socket: Socket, private val file: File) : FileRunnable(socket) {
-    override fun run() {
-
+    override fun start() {
         val fileStream = DataInputStream(FileInputStream(file))
-        sendFileName(out, file.name)
-        sendFileSize(out, file.length())
-        sendFile(out, fileStream, buffer)
+        fileStream.use {
+            sendFileName(out, file.name)
+            sendFileSize(out, file.length())
+            sendFile(out, fileStream, buffer)
 
-        val isOk = receiveSuccessCallback(input)
-        if (isOk) {
-            println("success")
-        } else {
-            println("fail")
+            val isOk = receiveSuccessCallback(input)
+            if (isOk) {
+                println("success")
+            } else {
+                println("fail")
+            }
         }
-
-        input.close()
-        out.close()
-        socket.close()
-        fileStream.close()
     }
 }

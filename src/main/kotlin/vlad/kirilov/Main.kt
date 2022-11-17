@@ -7,7 +7,7 @@ import java.net.ConnectException
 
 fun main(args: Array<String>) {
     if (args.isEmpty()) {
-        println("wrong args")
+        System.err.println("wrong args: first argument must be \"client\" or \"server\"")
         return
     }
 
@@ -17,37 +17,50 @@ fun main(args: Array<String>) {
             val address: String
             val port: Int
 
+            if (args.size != 4) {
+                System.err.println("wrong args: expected 4, have ${args.size}")
+                System.err.println("args: client <address> <port> <fileName>")
+                return
+            }
+
             try {
                 address = args[1]
                 port = Integer.parseInt(args[2])
                 fileName = args[3]
-            } catch (e: Exception) {
-                println("wrong args")
+            } catch (e: NumberFormatException) {
+                System.err.println("port must be integer number")
+                System.err.println("args: client <address> <port> <fileName>")
                 return
             }
 
             try {
                 ClientExecutor(address, port, fileName).execute()
             } catch (e: FileNotFoundException) {
-                println("incorrect file path")
+                System.err.println("incorrect file path")
             } catch (e: ConnectException) {
-                println("incorrect host")
+                System.err.println("$address:$port: ${e.message}")
             }
         }
         "server" -> {
             val port: Int
 
+            if (args.size != 2) {
+                System.err.println("wrong args: expected 2, have ${args.size}")
+                System.err.println("args: server <port>")
+                return
+            }
+
             try {
                 port = Integer.parseInt(args[1])
-            } catch (e: Exception) {
-                println("wrong args")
+            } catch (e: NumberFormatException) {
+                System.err.println("port must be integer number")
                 return
             }
 
             ServerExecutor(port).execute()
         }
         else -> {
-            println("wrong args")
+            System.err.println("wrong args: first argument must be \"client\" or \"server\"")
         }
     }
 }
